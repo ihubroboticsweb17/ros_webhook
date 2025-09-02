@@ -200,6 +200,36 @@ async def create_room_exit_point(request: Request):
             {'status': 'error', 'message': f'Unexpected error: {str(e)}', 'data': None},
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+    
+@app.post("/webhook/scheduled-data/")
+async def room_and_bed_receiver(request: Request):
+    try:
+        # Parse JSON payload
+        try:
+            payload_rec = await request.json()
+        except Exception:
+            return JSONResponse(
+                {'status': 'error', 'message': 'Invalid JSON payload.', 'data': None},
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+
+        print("✅ Webhook received:", payload_rec)
+
+        # Extract required field
+        value = payload_rec.get("scheduled_data")
+        if not value:
+            return JSONResponse(
+                {'status': 'error', 'message': 'Missing, required scheduled data', 'data': None},
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY
+            )
+
+        print("✅ Webhook received:", value)
+
+    except Exception as e:
+        return JSONResponse(
+            {'status': 'error', 'message': f'Unexpected error: {str(e)}', 'data': None},
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8001)
