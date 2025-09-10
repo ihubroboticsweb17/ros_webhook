@@ -231,7 +231,7 @@ async def room_and_bed_receiver(request: Request):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
     
-@app.post("/webhook/slip-slot/")
+@app.post("/webhook/skip-slot/")
 async def skip_slot_receiver(request: Request):
     try:
         # Parse JSON payload
@@ -252,6 +252,24 @@ async def skip_slot_receiver(request: Request):
             return JSONResponse(
                 {'status': 'error', 'message': 'Missing, required scheduled data', 'data': None},
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY
+            )
+        
+        if value == 'cancel':
+            return JSONResponse(
+                {'status': 'success', 'message': 'The slot is cancelled', 'data': value},
+                status_code=status.HTTP_200_OK
+            )
+        
+        if value == 'timeout':
+            return JSONResponse(
+                {'status': 'success', 'message': 'The slot is timed out', 'data': value},
+                status_code=status.HTTP_200_OK
+            )
+        
+        if value == 'help':
+            return JSONResponse(
+                {'status': 'success', 'message': 'The patient has requested help', 'data': value},
+                status_code=status.HTTP_200_OK
             )
 
         print("✅ Webhook received:", value)
