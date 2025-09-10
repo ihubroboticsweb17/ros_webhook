@@ -7,7 +7,7 @@ URI = "ws://192.168.1.33:8000/ws/socket-server/slot/"
 async def send_input(websocket):
     # ✅ Send both room and bed in one payload
     payload = {
-        "room": "room_1",
+        "room": "room_2",
         "bed": "bed_2"
     }
 

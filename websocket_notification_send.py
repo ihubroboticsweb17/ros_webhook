@@ -5,7 +5,6 @@ import json
 URI = "ws://192.168.1.33:8000/ws/socket-server/notification/"
 
 async def send_input(websocket):
-    # ✅ Send both room and bed in one payload
     payload = {
         "icon": "success",
         "notification": "Bed reached please select something"
