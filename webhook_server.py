@@ -254,12 +254,6 @@ async def skip_slot_receiver(request: Request):
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY
             )
         
-        if value == 'cancel':
-            return JSONResponse(
-                {'status': 'success', 'message': 'The slot is cancelled', 'data': value},
-                status_code=status.HTTP_200_OK
-            )
-        
         if value == 'timeout':
             return JSONResponse(
                 {'status': 'success', 'message': 'The slot is timed out', 'data': value},
@@ -269,6 +263,19 @@ async def skip_slot_receiver(request: Request):
         if value == 'help':
             return JSONResponse(
                 {'status': 'success', 'message': 'The patient has requested help', 'data': value},
+                status_code=status.HTTP_200_OK
+            )
+        
+        if value == 'not_me':
+            return JSONResponse(
+                {'status': 'success', 'message': 'The patient is not the person', 'data': value},
+                status_code=status.HTTP_200_OK
+            )
+        
+        if value == 'confirm':
+            #Start ocr and camera
+            return JSONResponse(
+                {'status': 'success', 'message': 'The patient is confirmed', 'data': value},
                 status_code=status.HTTP_200_OK
             )
 
