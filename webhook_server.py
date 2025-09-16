@@ -278,8 +278,56 @@ async def skip_slot_receiver(request: Request):
                 {'status': 'success', 'message': 'The patient is confirmed', 'data': value},
                 status_code=status.HTTP_200_OK
             )
+        
+        if value == 'patient-completed':
+            #Start ocr and camera
+            return JSONResponse(
+                {'status': 'success', 'message': 'The patient is confirmed', 'data': value},
+                status_code=status.HTTP_200_OK
+            )
 
         print("✅ Webhook received:", value)
+
+    except Exception as e:
+        return JSONResponse(
+            {'status': 'error', 'message': f'Unexpected error: {str(e)}', 'data': None},
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+@app.get("/webhook/demo-shown-completed/")
+async def demo_completed_receiver(request: Request):
+    try:
+        # Parse JSON payload
+        try:
+            payload_rec = await request.json()
+        except Exception:
+            return JSONResponse(
+                {'status': 'error', 'message': 'Invalid JSON payload.', 'data': None},
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+
+        print("✅ Webhook received:", payload_rec)
+
+        # Extract required field
+        value = payload_rec.get("patient_id")
+        # Do the function to skip the slot and move on to next
+        if not value:
+            return JSONResponse(
+                {'status': 'error', 'message': 'Missing, required patient id data', 'data': None},
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY
+            )
+        
+        print("📷 Started detecting camera")
+        #do the camera starting thing and detect it then if needed send the notification for tab to place the apparatus to the given position
+        
+        
+
+        print("✅ Webhook received:", value)
+
+        return JSONResponse(
+                {'status': 'success', 'message': 'The camera detection started', 'data': value},
+                status_code=status.HTTP_200_OK
+            )
 
     except Exception as e:
         return JSONResponse(
