@@ -294,7 +294,7 @@ async def skip_slot_receiver(request: Request):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
-@app.get("/webhook/demo-shown-completed/")
+@app.post("/webhook/demo-shown-completed/")
 async def demo_completed_receiver(request: Request):
     try:
         # Parse JSON payload
@@ -319,9 +319,7 @@ async def demo_completed_receiver(request: Request):
         
         print("📷 Started detecting camera")
         #do the camera starting thing and detect it then if needed send the notification for tab to place the apparatus to the given position
-        
-        
-
+  
         print("✅ Webhook received:", value)
 
         return JSONResponse(
