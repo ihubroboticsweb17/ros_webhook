@@ -332,6 +332,45 @@ async def demo_completed_receiver(request: Request):
             {'status': 'error', 'message': f'Unexpected error: {str(e)}', 'data': None},
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+    
+@app.post("/webhook/get/volume/")
+async def demo_completed_receiver(request: Request):
+    try:
+        # Parse JSON payload
+        try:
+            payload_rec = await request.json()
+        except Exception:
+            return JSONResponse(
+                {'status': 'error', 'message': 'Invalid JSON payload.', 'data': None},
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+
+        print("✅ Webhook received:", payload_rec)
+
+        # Extract required field
+        value = payload_rec.get("volume")
+        # Do the function to skip the slot and move on to next
+        if not value:
+            return JSONResponse(
+                {'status': 'error', 'message': 'Missing, required volume data', 'data': None},
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY
+            )
+        
+        print("Changed volume")
+        # Do the camera starting thing and detect it then if needed send the notification for tab to place the apparatus to the given position
+  
+        print("✅ Webhook received:", value)
+
+        return JSONResponse(
+                {'status': 'success', 'message': 'Changed the volume', 'data': value},
+                status_code=status.HTTP_200_OK
+            )
+
+    except Exception as e:
+        return JSONResponse(
+            {'status': 'error', 'message': f'Unexpected error: {str(e)}', 'data': None},
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8001)
