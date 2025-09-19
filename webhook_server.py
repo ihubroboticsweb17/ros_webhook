@@ -318,7 +318,7 @@ async def demo_completed_receiver(request: Request):
             )
         
         print("📷 Started detecting camera")
-        #do the camera starting thing and detect it then if needed send the notification for tab to place the apparatus to the given position
+        # Do the camera starting thing and detect it then if needed send the notification for tab to place the apparatus to the given position
   
         print("✅ Webhook received:", value)
 
