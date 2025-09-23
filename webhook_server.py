@@ -8,12 +8,14 @@ import random
 
 app = FastAPI()
 
-base_url = 'http://192.168.1.33:8000'
-
+# base_url = 'http://192.168.1.33:8000'
+base_url = 'https://192.168.11.200'
 create_slot_position_api = f"{base_url}/api/medicalbot/bed/data/slot/position/create/"
 create_room_entry_position_api = f"{base_url}/api/medicalbot/bed/data/room/entry-point/position/create/"
 create_room_exit_position_api = f"{base_url}/api/medicalbot/bed/data/room/exit-point/position/create/"
-app = FastAPI()
+
+slam_tech_base_url = 'http://192.168.11.1:1448'
+fetch_position = f"{slam_tech_base_url}/api/core/slam/v1/localization/pose/"
 
 # ✅ Add CORS middleware
 app.add_middleware(
@@ -45,19 +47,47 @@ async def webhook_receiver(request: Request):
                 {'status': 'error', 'message': 'Missing required field: slot_id', 'data': None},
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY
             )
+        
+        # Fetch x, y, yaw from SLAM API
+        async with httpx.AsyncClient(verify=False, timeout=10) as client:
+            try:
+                slam_resp = await client.get(fetch_position)
+                slam_resp.raise_for_status()
+                slam_data = slam_resp.json()
+            except httpx.HTTPStatusError as e:
+                return JSONResponse(
+                    {'status': 'error', 'message': f'SLAM API returned {e.response.status_code}', 'data': e.response.text},
+                    status_code=status.HTTP_502_BAD_GATEWAY
+                )
+            except httpx.RequestError as e:
+                return JSONResponse(
+                    {'status': 'error', 'message': f'Failed to reach SLAM API: {str(e)}', 'data': None},
+                    status_code=status.HTTP_504_GATEWAY_TIMEOUT
+                )
+
+        # Extract only required fields
+        x = slam_data.get("x")
+        y = slam_data.get("y")
+        yaw = slam_data.get("yaw")
+
+        if x is None or y is None or yaw is None:
+            return JSONResponse(
+                {'status': 'error', 'message': 'SLAM API did not return x, y, yaw.', 'data': slam_data},
+                status_code=status.HTTP_502_BAD_GATEWAY
+            )
 
         # Construct payload for forwarding
         payload = {
             "slot_id": value,
-            "x": round(random.uniform(0, 100), 2),
-            "y": round(random.uniform(0, 100), 2),
-            "yaw": round(random.uniform(-3.14, 3.14), 3)
+            "x": float(x),
+            "y": float(y),
+            "yaw": float(yaw)
         }
 
         # Forward request to external API
         async with httpx.AsyncClient(verify=False, timeout=10) as client:
             try:
-                response = await client.post(create_slot_position_api, json=payload)  # use `json` not `data`
+                response = await client.post(create_slot_position_api, json=payload)
                 response.raise_for_status()
             except httpx.HTTPStatusError as e:
                 return JSONResponse(
@@ -70,7 +100,7 @@ async def webhook_receiver(request: Request):
                     status_code=status.HTTP_504_GATEWAY_TIMEOUT
                 )
 
-        print("📡 Forwarded to API:", response.status_code, response.text)
+        print("Forwarded to API:", response.status_code, response.text)
 
         return JSONResponse(
             {'status': 'success', 'message': 'Slot created successfully.', 'data': payload},
@@ -105,12 +135,40 @@ async def create_room_entry_point(request: Request):
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY
             )
 
+        # Fetch x, y, yaw from SLAM API
+        async with httpx.AsyncClient(verify=False, timeout=10) as client:
+            try:
+                slam_resp = await client.get(fetch_position)
+                slam_resp.raise_for_status()
+                slam_data = slam_resp.json()
+            except httpx.HTTPStatusError as e:
+                return JSONResponse(
+                    {'status': 'error', 'message': f'SLAM API returned {e.response.status_code}', 'data': e.response.text},
+                    status_code=status.HTTP_502_BAD_GATEWAY
+                )
+            except httpx.RequestError as e:
+                return JSONResponse(
+                    {'status': 'error', 'message': f'Failed to reach SLAM API: {str(e)}', 'data': None},
+                    status_code=status.HTTP_504_GATEWAY_TIMEOUT
+                )
+
+        # Extract only required fields
+        x = slam_data.get("x")
+        y = slam_data.get("y")
+        yaw = slam_data.get("yaw")
+
+        if x is None or y is None or yaw is None:
+            return JSONResponse(
+                {'status': 'error', 'message': 'SLAM API did not return x, y, yaw.', 'data': slam_data},
+                status_code=status.HTTP_502_BAD_GATEWAY
+            )
+
         # Construct payload for forwarding
         payload = {
             "room_pos_id": value,
-            "x": round(random.uniform(0, 100), 2),
-            "y": round(random.uniform(0, 100), 2),
-            "yaw": round(random.uniform(-3.14, 3.14), 3)
+            "x": float(x),
+            "y": float(y),
+            "yaw": float(yaw)
         }
 
         # Forward request to external API
@@ -164,12 +222,79 @@ async def create_room_exit_point(request: Request):
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY
             )
 
+        # Fetch x, y, yaw from SLAM API
+        async with httpx.AsyncClient(verify=False, timeout=10) as client:
+            try:
+                slam_resp = await client.get(fetch_position)
+                slam_resp.raise_for_status()
+                slam_data = slam_resp.json()
+            except httpx.HTTPStatusError as e:
+                return JSONResponse(
+                    {'status': 'error', 'message': f'SLAM API returned {e.response.status_code}', 'data': e.response.text},
+                    status_code=status.HTTP_502_BAD_GATEWAY
+                )
+            except httpx.RequestError as e:
+                return JSONResponse(
+                    {'status': 'error', 'message': f'Failed to reach SLAM API: {str(e)}', 'data': None},
+                    status_code=status.HTTP_504_GATEWAY_TIMEOUT
+                )
+
+        # Extract required field
+        value = payload_rec.get("room_pos_id")
+        if not value:
+            return JSONResponse(
+                {'status': 'error', 'message': 'Missing required field: slot_id', 'data': None},
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY
+            )
+
+        # Fetch x, y, yaw from SLAM API
+        async with httpx.AsyncClient(verify=False, timeout=10) as client:
+            try:
+                slam_resp = await client.get(fetch_position)
+                slam_resp.raise_for_status()
+                slam_data = slam_resp.json()
+            except httpx.HTTPStatusError as e:
+                return JSONResponse(
+                    {'status': 'error', 'message': f'SLAM API returned {e.response.status_code}', 'data': e.response.text},
+                    status_code=status.HTTP_502_BAD_GATEWAY
+                )
+            except httpx.RequestError as e:
+                return JSONResponse(
+                    {'status': 'error', 'message': f'Failed to reach SLAM API: {str(e)}', 'data': None},
+                    status_code=status.HTTP_504_GATEWAY_TIMEOUT
+                )
+
+        # Extract only required fields
+        x = slam_data.get("x")
+        y = slam_data.get("y")
+        yaw = slam_data.get("yaw")
+
+        if x is None or y is None or yaw is None:
+            return JSONResponse(
+                {'status': 'error', 'message': 'SLAM API did not return x, y, yaw.', 'data': slam_data},
+                status_code=status.HTTP_502_BAD_GATEWAY
+            )
+
         # Construct payload for forwarding
         payload = {
             "room_pos_id": value,
-            "x": round(random.uniform(0, 100), 2),
-            "y": round(random.uniform(0, 100), 2),
-            "yaw": round(random.uniform(-3.14, 3.14), 3)
+            "x": float(x),
+            "y": float(y),
+            "yaw": float(yaw)
+        }
+
+        if x is None or y is None or yaw is None:
+            return JSONResponse(
+                {'status': 'error', 'message': 'SLAM API did not return x, y, yaw.', 'data': slam_data},
+                status_code=status.HTTP_502_BAD_GATEWAY
+            )
+
+        # Construct payload for forwarding
+        payload = {
+            "room_pos_id": value,
+            "x": float(x),
+            "y": float(y),
+            "yaw": float(yaw)
         }
 
         # Forward request to external API
@@ -201,35 +326,35 @@ async def create_room_exit_point(request: Request):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
     
-@app.post("/webhook/scheduled-data/")
-async def room_and_bed_receiver(request: Request):
-    try:
-        # Parse JSON payload
-        try:
-            payload_rec = await request.json()
-        except Exception:
-            return JSONResponse(
-                {'status': 'error', 'message': 'Invalid JSON payload.', 'data': None},
-                status_code=status.HTTP_400_BAD_REQUEST
-            )
+# @app.post("/webhook/scheduled-data/")
+# async def room_and_bed_receiver(request: Request):
+#     try:
+#         # Parse JSON payload
+#         try:
+#             payload_rec = await request.json()
+#         except Exception:
+#             return JSONResponse(
+#                 {'status': 'error', 'message': 'Invalid JSON payload.', 'data': None},
+#                 status_code=status.HTTP_400_BAD_REQUEST
+#             )
 
-        print("✅ Webhook received:", payload_rec)
+#         print("✅ Webhook received:", payload_rec)
 
-        # Extract required field
-        value = payload_rec.get("scheduled_data")
-        if not value:
-            return JSONResponse(
-                {'status': 'error', 'message': 'Missing, required scheduled data', 'data': None},
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY
-            )
+#         # Extract required field
+#         value = payload_rec.get("scheduled_data")
+#         if not value:
+#             return JSONResponse(
+#                 {'status': 'error', 'message': 'Missing, required scheduled data', 'data': None},
+#                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY
+#             )
 
-        print("✅ Webhook received:", value)
+#         print("✅ Webhook received:", value)
 
-    except Exception as e:
-        return JSONResponse(
-            {'status': 'error', 'message': f'Unexpected error: {str(e)}', 'data': None},
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+#     except Exception as e:
+#         return JSONResponse(
+#             {'status': 'error', 'message': f'Unexpected error: {str(e)}', 'data': None},
+#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+#         )
     
 @app.post("/webhook/skip-slot/")
 async def skip_slot_receiver(request: Request):
@@ -334,7 +459,7 @@ async def demo_completed_receiver(request: Request):
         )
     
 @app.post("/webhook/get/volume/")
-async def demo_completed_receiver(request: Request):
+async def demo_volume_receiver(request: Request):
     try:
         # Parse JSON payload
         try:
