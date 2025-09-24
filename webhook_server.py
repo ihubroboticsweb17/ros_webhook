@@ -15,7 +15,7 @@ create_room_entry_position_api = f"{base_url}/api/medicalbot/bed/data/room/entry
 create_room_exit_position_api = f"{base_url}/api/medicalbot/bed/data/room/exit-point/position/create/"
 
 slam_tech_base_url = 'http://192.168.11.1:1448'
-fetch_position = f"{slam_tech_base_url}/api/core/slam/v1/localization/pose/"
+fetch_position = f"{slam_tech_base_url}/api/core/artifact/v1/pois"  # /api/core/motion/v1/actions"
 
 # ✅ Add CORS middleware
 app.add_middleware(
@@ -475,7 +475,7 @@ async def demo_volume_receiver(request: Request):
         # Extract required field
         value = payload_rec.get("volume")
         # Do the function to skip the slot and move on to next
-        if not value:
+        if value is None:
             return JSONResponse(
                 {'status': 'error', 'message': 'Missing, required volume data', 'data': None},
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY
