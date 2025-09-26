@@ -1,97 +1,69 @@
 [
     {
-        "timestamp": "2025-09-24T13:00:00.057159",
-        "scheduler": {
-            "room_1": {
-                "entry_exit": {
-                    "entry": {
-                        "x": 34.72,
-                        "y": 70.4,
-                        "yaw": 1.929
-                    },
-                    "exit": {
-                        "x": 89.25,
-                        "y": 74.03,
-                        "yaw": 1.459
-                    }
+        "timestamp": "2025-09-26T19:22:00.046835",
+        "scheduler": [
+            {
+                "room_2": {
+                    "entry_point_x": 6.21,
+                    "entry_point_y": 90.65,
+                    "entry_point_yaw": 0.635,
+                    "exit_point_x": 6.89,
+                    "exit_point_y": 41.97,
+                    "exit_point_yaw": -1.37
                 },
-                "beds": [
+                "slot_pos": [
+                    {
+                        "bed_name": "bed_2",
+                        "x": 0.0002909261906787258,
+                        "y": -0.0001306167838311172,
+                        "yaw": -0.4180393517017365
+                    }
+                ]
+            },
+            {
+                "room_8": {
+                    "entry_point_x": null,
+                    "entry_point_y": null,
+                    "entry_point_yaw": null,
+                    "exit_point_x": null,
+                    "exit_point_y": null,
+                    "exit_point_yaw": null
+                },
+                "slot_pos": [
+                    {
+                        "bed_name": "bed_9",
+                        "x": 0.0002909261906787258,
+                        "y": -0.0001306167838311172,
+                        "yaw": -0.4180393517017365
+                    },
+                    {
+                        "bed_name": "bed_5",
+                        "x": 0.0,
+                        "y": 0.0,
+                        "yaw": 0.0
+                    }
+                ]
+            },
+            {
+                "room_1": {
+                    "entry_point_x": 34.72,
+                    "entry_point_y": 70.4,
+                    "entry_point_yaw": 1.929,
+                    "exit_point_x": 89.25,
+                    "exit_point_y": 74.03,
+                    "exit_point_yaw": 1.459
+                },
+                "slot_pos": [
                     {
                         "bed_name": "bed_3",
-                        "coordinates": {
-                            "x": 41.98,
-                            "y": 81.98,
-                            "yaw": 2.089
-                        }
-                    },
-                    {
-                        "bed_name": "bed_2",
-                        "coordinates": {
-                            "x": -8.459633101852632e-06,
-                            "y": 2.649768282894663e-05,
-                            "yaw": -0.4097420562170959
-                        }
-                    }
-                ]
-            },
-            "room_2": {
-                "entry_exit": {
-                    "entry": {
-                        "x": 6.21,
-                        "y": 90.65,
-                        "yaw": 0.635
-                    },
-                    "exit": {
-                        "x": 6.89,
-                        "y": 41.97,
-                        "yaw": -1.37
-                    }
-                },
-                "beds": [
-                    {
-                        "bed_name": "bed_4",
-                        "coordinates": {
-                            "x": 1.67,
-                            "y": 34.19,
-                            "yaw": 0.307
-                        }
-                    },
-                    {
-                        "bed_name": "bed_2",
-                        "coordinates": {
-                            "x": 73.93,
-                            "y": 10.23,
-                            "yaw": 2.169
-                        }
-                    }
-                ]
-            },
-            "room_6": {
-                "entry_exit": {
-                    "entry": {
                         "x": 0.0002909261906787258,
                         "y": -0.0001306167838311172,
                         "yaw": -0.4180393517017365
-                    },
-                    "exit": {
-                        "x": 0.0002909261906787258,
-                        "y": -0.0001306167838311172,
-                        "yaw": -0.4180393517017365
-                    }
-                },
-                "beds": [
-                    {
-                        "bed_name": "bed_1",
-                        "coordinates": {
-                            "x": 66.18,
-                            "y": 35.92,
-                            "yaw": 2.324
-                        }
                     }
                 ]
             }
-        },
-        "batch_id": 34,
+        ],
+        "batch_id": 36,
         "is_completed": null,
         "is_failed": null
     }
