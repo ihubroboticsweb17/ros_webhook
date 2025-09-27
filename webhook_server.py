@@ -134,6 +134,14 @@ async def create_room_entry_point(request: Request):
                 {'status': 'error', 'message': 'Missing required field: slot_id', 'data': None},
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY
             )
+        
+        arm_status = False
+
+        if not arm_status:
+            return JSONResponse(
+                {'status': 'reposition', 'message': 'Need to reposition robot', 'data': None},
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY
+            )
 
         # Fetch x, y, yaw from SLAM API
         async with httpx.AsyncClient(verify=False, timeout=10) as client:
@@ -219,6 +227,14 @@ async def create_room_exit_point(request: Request):
         if not value:
             return JSONResponse(
                 {'status': 'error', 'message': 'Missing required field: slot_id', 'data': None},
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY
+            )
+        
+        arm_status = False
+
+        if not arm_status:
+            return JSONResponse(
+                {'status': 'reposition', 'message': 'Need to reposition robot', 'data': None},
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY
             )
 
