@@ -497,5 +497,39 @@ async def demo_volume_receiver(request: Request):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
+@app.post("/webhook/start-mapping/")
+async def room_and_bed_receiver(request: Request):
+    try:
+
+        print("✅ started to map")
+
+        return JSONResponse(
+                {'status': 'success', 'message': 'Started Mapping', 'data': None},
+                status_code=status.HTTP_200_OK
+            )
+
+    except Exception as e:
+        return JSONResponse(
+            {'status': 'error', 'message': f'Unexpected error: {str(e)}', 'data': None},
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+    
+@app.post("/webhook/stop-mapping/")
+async def room_and_bed_receiver(request: Request):
+    try:
+
+        print("✅ started to map")
+
+        return JSONResponse(
+                {'status': 'success', 'message': 'Stopped Mapping', 'data': None},
+                status_code=status.HTTP_200_OK
+            )
+
+    except Exception as e:
+        return JSONResponse(
+            {'status': 'error', 'message': f'Unexpected error: {str(e)}', 'data': None},
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8001)
