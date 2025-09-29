@@ -7,8 +7,8 @@ URI = "ws://192.168.1.33:8000/ws/socket-server/robot-distance-accuracy/"
 async def send_input(websocket):
     # ✅ Send both room and bed in one payload
     payload = {
-        "accuracy": "20 CM",
-        "distance": "58 %"
+        "accuracy": "20 %",
+        "distance": "58 CM"
     }
 
     await websocket.send(json.dumps(payload))
