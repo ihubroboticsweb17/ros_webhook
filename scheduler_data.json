@@ -1,37 +1,19 @@
 [
     {
-        "timestamp": "2025-09-27T15:57:00.055447",
+        "timestamp": "2025-10-04T16:46:00.041040",
         "scheduler": [
-            {
-                "room_2": {
-                    "entry_point_x": 6.21,
-                    "entry_point_y": 90.65,
-                    "entry_point_yaw": 0.635,
-                    "exit_point_x": 6.89,
-                    "exit_point_y": 41.97,
-                    "exit_point_yaw": -1.37
-                },
-                "slot_pos": [
-                    {
-                        "bed_name": "bed_2",
-                        "x": 0.0002909261906787258,
-                        "y": -0.0001306167838311172,
-                        "yaw": -0.4180393517017365
-                    }
-                ]
-            },
             {
                 "room_8": {
                     "entry_point_x": null,
                     "entry_point_y": null,
                     "entry_point_yaw": null,
-                    "exit_point_x": null,
-                    "exit_point_y": null,
-                    "exit_point_yaw": null
+                    "exit_point_x": 0.0005858442556821838,
+                    "exit_point_y": -0.1132510421603912,
+                    "exit_point_yaw": 0.126712684917297
                 },
                 "slot_pos": [
                     {
-                        "bed_name": "bed_5",
+                        "bed_name": "bed_6",
                         "x": 0.0,
                         "y": 0.0,
                         "yaw": 0.0
@@ -41,29 +23,23 @@
                         "x": 0.0002909261906787258,
                         "y": -0.0001306167838311172,
                         "yaw": -0.4180393517017365
-                    }
-                ]
-            },
-            {
-                "room_1": {
-                    "entry_point_x": 34.72,
-                    "entry_point_y": 70.4,
-                    "entry_point_yaw": 1.929,
-                    "exit_point_x": 89.25,
-                    "exit_point_y": 74.03,
-                    "exit_point_yaw": 1.459
-                },
-                "slot_pos": [
+                    },
                     {
-                        "bed_name": "bed_3",
-                        "x": 0.0002909261906787258,
-                        "y": -0.0001306167838311172,
-                        "yaw": -0.4180393517017365
+                        "bed_name": "bed_5",
+                        "x": 0.0,
+                        "y": 0.0,
+                        "yaw": 0.0
+                    },
+                    {
+                        "bed_name": "bed_8",
+                        "x": 0.0,
+                        "y": 0.0,
+                        "yaw": 0.0
                     }
                 ]
             }
         ],
-        "batch_id": 36,
+        "batch_id": 38,
         "is_completed": null,
         "is_failed": null
     }

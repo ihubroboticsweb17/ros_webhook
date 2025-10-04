@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 from starlette import status
 from fastapi.middleware.cors import CORSMiddleware
 import random
+import traceback
 
 app = FastAPI()
 
@@ -135,7 +136,7 @@ async def create_room_entry_point(request: Request):
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY
             )
         
-        arm_status = False
+        arm_status = True
 
         if not arm_status:
             return JSONResponse(
@@ -230,7 +231,7 @@ async def create_room_exit_point(request: Request):
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY
             )
         
-        arm_status = False
+        arm_status = True
 
         if not arm_status:
             return JSONResponse(
@@ -254,50 +255,13 @@ async def create_room_exit_point(request: Request):
                     {'status': 'error', 'message': f'Failed to reach SLAM API: {str(e)}', 'data': None},
                     status_code=status.HTTP_504_GATEWAY_TIMEOUT
                 )
-
-        # Extract required field
-        value = payload_rec.get("room_pos_id")
-        if not value:
-            return JSONResponse(
-                {'status': 'error', 'message': 'Missing required field: slot_id', 'data': None},
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY
-            )
-
-        # Fetch x, y, yaw from SLAM API
-        async with httpx.AsyncClient(verify=False, timeout=10) as client:
-            try:
-                slam_resp = await client.get(fetch_position)
-                slam_resp.raise_for_status()
-                slam_data = slam_resp.json()
-            except httpx.HTTPStatusError as e:
-                return JSONResponse(
-                    {'status': 'error', 'message': f'SLAM API returned {e.response.status_code}', 'data': e.response.text},
-                    status_code=status.HTTP_502_BAD_GATEWAY
-                )
-            except httpx.RequestError as e:
-                return JSONResponse(
-                    {'status': 'error', 'message': f'Failed to reach SLAM API: {str(e)}', 'data': None},
-                    status_code=status.HTTP_504_GATEWAY_TIMEOUT
-                )
+            
+        print(slam_data)
 
         # Extract only required fields
         x = slam_data.get("x")
         y = slam_data.get("y")
         yaw = slam_data.get("yaw")
-
-        if x is None or y is None or yaw is None:
-            return JSONResponse(
-                {'status': 'error', 'message': 'SLAM API did not return x, y, yaw.', 'data': slam_data},
-                status_code=status.HTTP_502_BAD_GATEWAY
-            )
-
-        # Construct payload for forwarding
-        payload = {
-            "room_pos_id": value,
-            "x": float(x),
-            "y": float(y),
-            "yaw": float(yaw)
-        }
 
         if x is None or y is None or yaw is None:
             return JSONResponse(
@@ -337,8 +301,9 @@ async def create_room_exit_point(request: Request):
         )
 
     except Exception as e:
+        error = traceback.format_exc()
         return JSONResponse(
-            {'status': 'error', 'message': f'Unexpected error: {str(e)}', 'data': None},
+            {'status': 'error', 'message': f'Unexpected error: {str(e)}', 'data': error},
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
     

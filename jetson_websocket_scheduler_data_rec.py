@@ -46,11 +46,12 @@ def save_to_json(data: dict, filename: str = "scheduler_data.json"):
             print(f"scheduled data {scheduled_data}")
             print(f"batch id data {batch_id}")
 
-            # Write back to file
-            with open(filename, "w") as f:
-                json.dump(existing_data, f, indent=4)
+        # Write back to file
+        with open(filename, "w") as f:
+            json.dump(existing_data, f, indent=4)
 
-            print(f"✅ Data saved to {filename}")
+        print(f"✅ Data saved to {filename}")
+
     except Exception as e:
         print(f"❌ Error saving JSON: {e}")
 
