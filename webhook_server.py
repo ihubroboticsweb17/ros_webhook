@@ -6,6 +6,7 @@ from starlette import status
 from fastapi.middleware.cors import CORSMiddleware
 import random
 import traceback
+import uuid
 
 app = FastAPI()
 
@@ -18,6 +19,8 @@ create_room_exit_position_api = f"{base_url}/api/medicalbot/bed/data/room/exit-p
 slam_tech_base_url = 'http://192.168.11.1:1448'
 fetch_position = f"{slam_tech_base_url}/api/core/artifact/v1/pois"
 fetch_battery_status = f"{slam_tech_base_url}/api/core/system/v1/power/status"
+save_location_data = f"{slam_tech_base_url}/api/core/slam/v1/pois"
+fetch_map_file = f"{slam_tech_base_url}/api/core/slam/v1/maps/stcm"
 
 # ✅ Add CORS middleware
 app.add_middleware(
@@ -44,6 +47,11 @@ async def webhook_receiver(request: Request):
 
         # Extract required field
         value = payload_rec.get("slot_id")
+
+        room_name = payload_rec.get("room_name")
+        bed_name = payload_rec.get("bed_name")
+
+
         if not value:
             return JSONResponse(
                 {'status': 'error', 'message': 'Missing required field: slot_id', 'data': None},
@@ -101,6 +109,53 @@ async def webhook_receiver(request: Request):
                     {'status': 'error', 'message': f'Failed to reach API: {str(e)}', 'data': None},
                     status_code=status.HTTP_504_GATEWAY_TIMEOUT
                 )
+            
+        # Save position and data name to SLAM tech
+        payload_slam = {
+            "id": str(uuid.uuid4()),
+            "metadata": {
+                "display_name": f"{room_name}_{bed_name}",
+                "type": "Slot"
+            },
+            "pose": {
+                "x": x,
+                "y": y,
+                "yaw": yaw
+            }
+        }
+
+        async with httpx.AsyncClient(verify=False, timeout=10) as client:
+            try:
+                # Send POST request instead of GET
+                slam_resp = await client.post(save_location_data, json=payload_slam)
+                slam_resp.raise_for_status()
+                slam_data = slam_resp.json()
+
+                return JSONResponse(
+                    {"status": "success", "message": "SLAM data saved successfully", "data": slam_data},
+                    status_code=status.HTTP_200_OK
+                )
+
+            except httpx.HTTPStatusError as e:
+                return JSONResponse(
+                    {
+                        "status": "error",
+                        "message": f"SLAM API returned {e.response.status_code}",
+                        "data": e.response.text,
+                    },
+                    status_code=status.HTTP_502_BAD_GATEWAY,
+                )
+
+            except httpx.RequestError as e:
+                return JSONResponse(
+                    {
+                        "status": "error",
+                        "message": f"Failed to reach SLAM API: {str(e)}",
+                        "data": None,
+                    },
+                    status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+                )
+
 
         print("Forwarded to API:", response.status_code, response.text)
 
@@ -131,6 +186,7 @@ async def create_room_entry_point(request: Request):
 
         # Extract required field
         value = payload_rec.get("room_pos_id")
+        room_name = payload_rec.get("room_name")
         if not value:
             return JSONResponse(
                 {'status': 'error', 'message': 'Missing required field: slot_id', 'data': None},
@@ -196,6 +252,52 @@ async def create_room_entry_point(request: Request):
                     {'status': 'error', 'message': f'Failed to reach API: {str(e)}', 'data': None},
                     status_code=status.HTTP_504_GATEWAY_TIMEOUT
                 )
+            
+        # Save position and data name to SLAM tech
+        payload_slam = {
+            "id": str(uuid.uuid4()),
+            "metadata": {
+                "display_name": f"{room_name}_entry_poi",
+                "type": "Room_entry"
+            },
+            "pose": {
+                "x": x,
+                "y": y,
+                "yaw": yaw
+            }
+        }
+
+        async with httpx.AsyncClient(verify=False, timeout=10) as client:
+            try:
+                # Send POST request instead of GET
+                slam_resp = await client.post(save_location_data, json=payload_slam)
+                slam_resp.raise_for_status()
+                slam_data = slam_resp.json()
+
+                return JSONResponse(
+                    {"status": "success", "message": "SLAM data saved successfully", "data": slam_data},
+                    status_code=status.HTTP_200_OK
+                )
+
+            except httpx.HTTPStatusError as e:
+                return JSONResponse(
+                    {
+                        "status": "error",
+                        "message": f"SLAM API returned {e.response.status_code}",
+                        "data": e.response.text,
+                    },
+                    status_code=status.HTTP_502_BAD_GATEWAY,
+                )
+
+            except httpx.RequestError as e:
+                return JSONResponse(
+                    {
+                        "status": "error",
+                        "message": f"Failed to reach SLAM API: {str(e)}",
+                        "data": None,
+                    },
+                    status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+                )
 
         print("📡 Forwarded to API:", response.status_code, response.text)
 
@@ -226,6 +328,7 @@ async def create_room_exit_point(request: Request):
 
         # Extract required field
         value = payload_rec.get("room_pos_id")
+        room_name = payload_rec.get("room_name")
         if not value:
             return JSONResponse(
                 {'status': 'error', 'message': 'Missing required field: slot_id', 'data': None},
@@ -292,6 +395,52 @@ async def create_room_exit_point(request: Request):
                 return JSONResponse(
                     {'status': 'error', 'message': f'Failed to reach API: {str(e)}', 'data': None},
                     status_code=status.HTTP_504_GATEWAY_TIMEOUT
+                )
+            
+        # Save position and data name to SLAM tech
+        payload_slam = {
+            "id": str(uuid.uuid4()),
+            "metadata": {
+                "display_name": f"{room_name}_exit_poi",
+                "type": "Room_exit"
+            },
+            "pose": {
+                "x": x,
+                "y": y,
+                "yaw": yaw
+            }
+        }
+
+        async with httpx.AsyncClient(verify=False, timeout=10) as client:
+            try:
+                # Send POST request instead of GET
+                slam_resp = await client.post(save_location_data, json=payload_slam)
+                slam_resp.raise_for_status()
+                slam_data = slam_resp.json()
+
+                return JSONResponse(
+                    {"status": "success", "message": "SLAM data saved successfully", "data": slam_data},
+                    status_code=status.HTTP_200_OK
+                )
+
+            except httpx.HTTPStatusError as e:
+                return JSONResponse(
+                    {
+                        "status": "error",
+                        "message": f"SLAM API returned {e.response.status_code}",
+                        "data": e.response.text,
+                    },
+                    status_code=status.HTTP_502_BAD_GATEWAY,
+                )
+
+            except httpx.RequestError as e:
+                return JSONResponse(
+                    {
+                        "status": "error",
+                        "message": f"Failed to reach SLAM API: {str(e)}",
+                        "data": None,
+                    },
+                    status_code=status.HTTP_504_GATEWAY_TIMEOUT,
                 )
 
         print("📡 Forwarded to API:", response.status_code, response.text)
@@ -500,7 +649,7 @@ async def room_and_bed_receiver(request: Request):
 async def room_and_bed_receiver(request: Request):
     try:
 
-        print("✅ started to map")
+        print("✅ stopped to map")
 
         return JSONResponse(
                 {'status': 'success', 'message': 'Stopped Mapping', 'data': None},
