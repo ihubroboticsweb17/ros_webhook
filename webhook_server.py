@@ -16,7 +16,8 @@ create_room_entry_position_api = f"{base_url}/api/medicalbot/bed/data/room/entry
 create_room_exit_position_api = f"{base_url}/api/medicalbot/bed/data/room/exit-point/position/create/"
 
 slam_tech_base_url = 'http://192.168.11.1:1448'
-fetch_position = f"{slam_tech_base_url}/api/core/artifact/v1/pois"  # /api/core/motion/v1/actions"
+fetch_position = f"{slam_tech_base_url}/api/core/artifact/v1/pois"
+fetch_battery_status = f"{slam_tech_base_url}/api/core/system/v1/power/status"
 
 # ✅ Add CORS middleware
 app.add_middleware(
@@ -506,6 +507,75 @@ async def room_and_bed_receiver(request: Request):
                 status_code=status.HTTP_200_OK
             )
 
+    except Exception as e:
+        return JSONResponse(
+            {'status': 'error', 'message': f'Unexpected error: {str(e)}', 'data': None},
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+ 
+@app.get("/webhook/health-check/")
+async def health_check():
+    return JSONResponse(
+        {'status': 'success', 'message': 'Server is healthy', 'data': True},
+        status_code=status.HTTP_200_OK
+    )
+
+@app.get("/webhook/battery-status/")
+async def battery_status():
+    try:
+         # Fetch x, y, yaw from SLAM API
+        async with httpx.AsyncClient(verify=False, timeout=10) as client:
+            try:
+                slam_resp = await client.get(fetch_battery_status)
+                slam_resp.raise_for_status()
+                slam_data = slam_resp.json()
+            except httpx.HTTPStatusError as e:
+                return JSONResponse(
+                    {'status': 'error', 'message': f'SLAM API returned {e.response.status_code}', 'data': e.response.text},
+                    status_code=status.HTTP_502_BAD_GATEWAY
+                )
+            except httpx.RequestError as e:
+                return JSONResponse(
+                    {'status': 'error', 'message': f'Failed to reach SLAM API: {str(e)}', 'data': None},
+                    status_code=status.HTTP_504_GATEWAY_TIMEOUT
+                )
+
+        return JSONResponse(
+            {'status': 'success', 'message': 'Battery status fetched', 'data': slam_data},
+            status_code=status.HTTP_200_OK
+        )
+    except Exception as e:
+        return JSONResponse(
+            {'status': 'error', 'message': f'Unexpected error: {str(e)}', 'data': None},
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+    
+@app.get("/webhook/battery-health/")
+async def battery_status():
+    try:
+        
+        charge = 80
+        voltage = 23
+        current = 64
+        power = 23
+        temperature = 32
+        time_left = 1234
+        count = 134
+
+        battery_data = {
+        "charge": charge,
+        "voltage": voltage,
+        "current": current,
+        "power": power,
+        "temperature": temperature,
+        "time_left": time_left,
+        "count": count
+    }
+
+        return JSONResponse(
+            {'status': 'success', 'message': 'Battery status fetched', 'data': battery_data},
+            status_code=status.HTTP_200_OK
+        )
     except Exception as e:
         return JSONResponse(
             {'status': 'error', 'message': f'Unexpected error: {str(e)}', 'data': None},
