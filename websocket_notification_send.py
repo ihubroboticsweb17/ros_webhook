@@ -2,7 +2,7 @@ import asyncio
 import websockets
 import json
 
-URI = "ws://192.168.1.33:8000/ws/socket-server/notification/"
+URI = "ws://192.168.1.57:8000/ws/socket-server/notification/"
 
 async def send_input(websocket):
     payload = {

@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 
 async def receive_chars():
-    uri = "ws://192.168.1.33:8000/ws/socket-server/scheduler-data/"
+    uri = "ws://192.168.1.57:8000/ws/socket-server/scheduler-data/"
 
     try:
         async with websockets.connect(uri, ping_interval=20, ping_timeout=30) as websocket:

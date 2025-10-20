@@ -2,7 +2,7 @@ import asyncio
 import websockets
 import json
 
-URI = "ws://192.168.1.33:8000/ws/socket-server/help/"
+URI = "ws://192.168.1.57:8000/ws/socket-server/help/"
 
 async def send_input(websocket):
     # ✅ Send both room and bed in one payload

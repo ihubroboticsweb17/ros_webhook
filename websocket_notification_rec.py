@@ -3,7 +3,7 @@ import websockets
 import json
 
 async def receive_chars():
-    uri = "ws://192.168.1.33:8000/ws/socket-server/notification/"
+    uri = "ws://192.168.1.57:8000/ws/socket-server/notification/"
 
     try:
         async with websockets.connect(uri, ping_interval=20, ping_timeout=30) as websocket:
